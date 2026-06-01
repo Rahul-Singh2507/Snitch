@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../hook/useAuth.js";
 import { Link ,useNavigate} from "react-router";
+import GoogleButton from "../components/GoogleButton.jsx";  
 const Login = () => {
   const { handleLogin } = useAuth();
 const navigate = useNavigate();
@@ -81,6 +82,8 @@ const navigate = useNavigate();
     Register    
   </Link>
 </p>
+
+<GoogleButton />
         </form>
       </div>
     </div>

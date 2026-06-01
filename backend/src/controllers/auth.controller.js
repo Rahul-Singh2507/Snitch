@@ -4,12 +4,19 @@ import jwt from "jsonwebtoken";
 
 
 const sendTokenResponse = (user, res, message) => {
-      console.log("SECRET:", config.JWT_SECRET);  // 👈 ADD HERE
+    console.log("SIGN SECRET:", config.JWT_SECRET);
   const token = jwt.sign(
     { id: user._id },
     config.JWT_SECRET,
     { expiresIn: "1d" }
   );
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: false,    
+    sameSite: "lax"
+  });
+
 
   res.status(201).json({
     message,
@@ -82,4 +89,46 @@ const login = async (req,res)=>{
         res.status(500).json({ message: "Internal server error" });
     }   
 }
-export {register,login}
+
+
+ const googleCallback = async (req,res)=>{
+
+  
+  const { id, displayName, emails, photos } = req.user;
+
+  const email = emails[0].value;
+  const profilePic = photos[0].value;
+
+  let user = await userModel.findOne({
+    email,
+  });
+
+  if (!user) {
+    user = await userModel.create({
+      email,
+      googleId: id,
+      fullname: displayName,
+    });
+  }
+
+
+      
+     const token = jwt.sign(
+        { id: user._id },
+        config.JWT_SECRET,
+        { expiresIn: "1d" }
+      );        
+      res.cookie("token", token, )
+       
+      res.redirect("http://localhost:5173/")
+
+    
+}
+
+
+
+
+
+
+
+export {register,login,googleCallback}

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../hook/useAuth.js";
 import { Link,useNavigate } from "react-router";
+import GoogleButton from "../components/GoogleButton.jsx";
+
 const Register = () => {
   const { handleRegister } = useAuth();
   const navigate = useNavigate();
@@ -103,6 +105,8 @@ const Register = () => {
             </label>
           </div>
 
+
+          
           {/* Button */}
           <button
             type="submit"
@@ -117,6 +121,8 @@ const Register = () => {
     Login
   </Link>
 </p>
+
+<GoogleButton />
         </form>
       </div>
     </div>
