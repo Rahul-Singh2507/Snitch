@@ -1,40 +1,41 @@
-import { setError, setLoading, setUser } from "../state/auth.slice.js";
-import { register } from "../service/auth.api.js";
-import { login } from "../service/auth.api.js";
-import { useDispatch } from "react-redux";
+import { setError, setLoading, setUser } from "../state/auth.slice"
+import { register, login, getMe } from "../service/auth.api"
+import { useDispatch } from "react-redux"
+
+
 
 export const useAuth = () => {
-  const dispatch = useDispatch();
 
-  async function handleRegister({ email, contact, password, fullname }) {
-    try {
-      dispatch(setLoading(true));
+    const dispatch = useDispatch()
 
-      const data = await register({ email, contact, password, fullname });
+    async function handleRegister({ email, contact, password, fullname, isSeller = false }) {
 
-      dispatch(setUser(data.user));
-      dispatch(setError(null));
-    } catch (error) {
-      dispatch(setError(error?.response?.data?.message || "Something went wrong"));
-    } finally {
-      dispatch(setLoading(false));
+        const data = await register({ email, contact, password, fullname, isSeller })
+
+        dispatch(setUser(data.user))
+
+        return data.user
     }
-  }
 
-  async function handleLogin({ email, password }) {
-    try {
-      dispatch(setLoading(true));
+    async function handleLogin({ email, password }) {
 
-      const data = await login({ email, password });
-
-      dispatch(setUser(data.user));
-      dispatch(setError(null));
-    } catch (error) {
-      dispatch(setError(error?.response?.data?.message || "Something went wrong"));
-    } finally {
-      dispatch(setLoading(false));
+        const data = await login({ email, password })
+        dispatch(setUser(data.user))
+        return data.user
     }
-  }
 
-  return { handleRegister, handleLogin };
-};
+    async function handleGetMe() {
+        try {
+            dispatch(setLoading(true))
+            const data = await getMe()
+            dispatch(setUser(data.user))
+        } catch (err) {
+            console.log(err)
+        } finally {
+            dispatch(setLoading(false))
+        }
+    }
+
+    return { handleRegister, handleLogin, handleGetMe }
+
+}
