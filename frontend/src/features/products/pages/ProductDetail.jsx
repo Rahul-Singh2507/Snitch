@@ -269,9 +269,13 @@ const ProductDetail = () => {
                                         e.currentTarget.style.color = '#fbf9f6';
                                     }}
                                     onClick={() => {
+                                        if (product?.variants?.length > 0 && !activeVariant?._id) {
+                                            return
+                                        }
+
                                         handleAddItem({
                                             productId: product._id,
-                                            variantId: activeVariant._id
+                                            variantId: activeVariant?._id
                                         })
                                     }}
                                 >

@@ -15,7 +15,8 @@ const router = express.Router();
  * @argument variantId - ID of the variant to add
  * @argument quantity - Quantity of the item to add (optional, default: 1)
  */
-router.post("/add/:productId/:variantId", authenticateUser, validateAddToCart, addToCart)
+router.post('/add/:productId', authenticateUser, validateAddToCart, addToCart)
+router.post('/add/:productId/:variantId', authenticateUser, validateAddToCart, addToCart)
 
 
 
@@ -34,15 +35,16 @@ router.get('/', authenticateUser, getCart)
  * @argument productId - ID of the product to update
  * @argument variantId - ID of the variant to update
  */
-router.patch("/quantity/increment/:productId/:variantId", authenticateUser, validateIncrementCartItemQuantity, incrementCartItemQuantity)
+router.patch('/quantity/increment/:productId', authenticateUser, validateIncrementCartItemQuantity, incrementCartItemQuantity)
+router.patch('/quantity/increment/:productId/:variantId', authenticateUser, validateIncrementCartItemQuantity, incrementCartItemQuantity)
 
 
 /**
  * @route POST /api/cart/payment/create/order
  */
-router.post("/payment/create/order", authenticateUser, createOrderController)
+router.post('/payment/create/order', authenticateUser, createOrderController)
 
 
-router.post("/payment/verify/order", authenticateUser, verifyOrderController)
+router.post('/payment/verify/order', authenticateUser, verifyOrderController)
 
 export default router;

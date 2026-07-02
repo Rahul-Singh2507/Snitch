@@ -45,7 +45,7 @@ const Cart = () => {
     /* ─── Helpers ─── */
     const getVariantDetails = (product, variantId) => {
         if (!product?.variants || !variantId) return null
-        return product.variants
+        return product.variants.find(variant => variant._id?.toString() === variantId?.toString())
     }
 
     const getDisplayImage = (product, variant) => {
@@ -299,7 +299,7 @@ const Cart = () => {
                                                         </p>
                                                     )}
                                                     {
-                                                        displayPrice.amount !== variantPrice.amount && (
+                                                        variantPrice && displayPrice.amount !== variantPrice.amount && (
                                                             <>
                                                                 {displayPrice.amount > variantPrice.amount
                                                                     ? <p className="text-[10px] uppercase tracking-[0.15em] mb-4 text-green-800 font-bold" > you will get this at {formatCurrency(variantPrice.amount, variantPrice.currency)} save {Math.abs(variantPrice.amount - displayPrice.amount)}.  </p>

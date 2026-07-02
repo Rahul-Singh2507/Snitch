@@ -1,61 +1,33 @@
-import cartModel from "../models/cart.model.js";
-import mongoose from "mongoose";
+import cartModel from '../models/cart.model.js';
 
 export async function getCartDetails(userId) {
-    let cart = (await cartModel.aggregate([
-        {
-            $match: {
-                user: new mongoose.Types.ObjectId(userId)
-            }
-        },
-        { $unwind: { path: '$items' } },
-        {
-            $lookup: {
-                from: 'products',
-                localField: 'items.product',
-                foreignField: '_id',
-                as: 'items.product'
-            }
-        },
-        { $unwind: { path: '$items.product' } },
-        {
-            $unwind: { path: '$items.product.variants' }
-        },
-        {
-            $match: {
-                $expr: {
-                    $eq: [
-                        '$items.variant',
-                        '$items.product.variants._id'
-                    ]
-                }
-            }
-        },
-        {
-            $addFields: {
-                itemPrice: {
-                    price: {
-                        $multiply: [
-                            '$items.quantity',
-                            '$items.product.variants.price.amount'
-                        ]
-                    },
-                    currency:
-                        '$items.product.variants.price.currency'
-                }
-            }
-        },
-        {
-            $group: {
-                _id: '$_id',
-                totalPrice: { $sum: '$itemPrice.price' },
-                currency: {
-                    $first: '$itemPrice.currency'
-                },
-                items: { $push: '$items' }
-            }
-        }
-    ]))[ 0 ]
+    const cart = await cartModel.findOne({ user: userId }).populate('items.product')
 
-    return cart
+    if (!cart) {
+        return null
+    }
+
+    const items = cart.items.map(item => {
+        const variant = item.variant
+            ? item.product?.variants?.find(productVariant => productVariant._id.toString() === item.variant.toString())
+            : null
+
+        return {
+            ...item.toObject(),
+            product: item.product,
+            price: variant?.price?.amount != null ? variant.price : item.price
+        }
+    })
+
+    const totalPrice = items.reduce((sum, item) => {
+        const itemAmount = Number(item.price?.amount ?? 0)
+        return sum + (itemAmount * item.quantity)
+    }, 0)
+
+    return {
+        _id: cart._id,
+        items,
+        totalPrice,
+        currency: items[0]?.price?.currency || 'INR'
+    }
 }
