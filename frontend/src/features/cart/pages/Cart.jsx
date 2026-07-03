@@ -23,7 +23,7 @@ const tokens = {
 
 const Cart = () => {
     const cart = useSelector(state => state.cart)
-    const { handleGetCart, handleIncrementCartItem, handleCreateCartOrder, handleVerifyCartOrder } = useCart()
+    const { handleGetCart,handleDecrementCartItem, handleIncrementCartItem,handleRemoveCartItem, handleCreateCartOrder, handleVerifyCartOrder } = useCart()
     const navigate = useNavigate()
     const { error, isLoading, Razorpay } = useRazorpay();
     const user = useSelector(state => state.user)
@@ -318,8 +318,15 @@ const Cart = () => {
                                                         style={{ border: `1px solid ${tokens.outlineVariant}` }}
                                                     >
                                                         <button
+                                                  
+
                                                             id={`qty-dec-${_id}`}
-                                                            onClick={() => changeQty(_id, -1)}
+                                                                  onClick={() =>
+                                                   handleDecrementCartItem({
+                                                        productId:_id,
+                                                            variantId
+                                                                })}
+
                                                             className="w-9 h-9 flex items-center justify-center text-sm font-light transition-colors hover:opacity-60"
                                                             style={{ color: tokens.onSurface, borderRight: `1px solid ${tokens.outlineVariant}` }}
                                                             aria-label="Decrease quantity"
@@ -344,7 +351,14 @@ const Cart = () => {
                                                     </div>
 
                                                     {/* Remove */}
-                                                    <button
+                                                    <button 
+                                                    onClick={() => 
+                                                  handleRemoveCartItem({
+                                                      productId: _id,
+                                                             variantId
+                                                                         })
+}
+                                                    
                                                         id={`remove-${_id}`}
                                                         className="text-[10px] uppercase tracking-[0.22em] font-medium transition-all duration-200 hover:underline hover:opacity-70"
                                                         style={{ color: tokens.muted }}
@@ -484,7 +498,10 @@ const Cart = () => {
                                         e.currentTarget.style.backgroundColor = tokens.onSurface
                                         e.currentTarget.style.color = tokens.surface
                                     }}
-                                    onClick={handleCheckout}
+                                  onClick={()=>{
+    console.log("checkout clicked")
+    handleCheckout()
+}}
                                 >
                                     Proceed to Checkout
                                 </button>

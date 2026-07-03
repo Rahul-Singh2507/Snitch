@@ -146,6 +146,76 @@ export const incrementCartItemQuantity = async (req, res) => {
         success: true
     })
 }
+export const decrementCartItemQuantity = async (req, res) => {
+    const { productId, variantId } = req.params
+
+    const product = variantId
+        ? await productModel.findOne({
+            _id: productId,
+            'variants._id': variantId
+        })
+        : await productModel.findById(productId)
+
+    if (!product) {
+        return res.status(404).json({
+            message: 'Product or variant not found',
+            success: false
+        })
+    }
+
+
+    const cart = await cartModel.findOne({ 
+        user: req.user._id 
+    })
+
+    if (!cart) {
+        return res.status(404).json({
+            message: 'Cart not found',
+            success: false
+        })
+    }
+
+
+    const cartItem = cart.items.find(
+        item =>
+            item.product.toString() === productId &&
+            item.variant?.toString() === variantId
+    )
+
+
+    if (!cartItem) {
+        return res.status(404).json({
+            message: 'Cart item not found',
+            success: false
+        })
+    }
+
+
+    if (cartItem.quantity <= 1) {
+
+        cart.items = cart.items.filter(
+            item =>
+                !(
+                    item.product.toString() === productId &&
+                    item.variant?.toString() === variantId
+                )
+        )
+
+    } else {
+
+        cartItem.quantity -= 1
+
+    }
+
+
+    await cart.save()
+
+
+    return res.status(200).json({
+        message: 'Cart item quantity decremented successfully',
+        success: true
+    })
+}
 
 export const createOrderController = async (req, res) => {
 
@@ -196,7 +266,47 @@ export const createOrderController = async (req, res) => {
         order
     })
 }
+export const removeCartItem = async (req, res) => {
+    try {
+        const { productId, variantId } = req.params;
 
+        const cart = await cartModel.findOne({
+            user: req.user._id
+        });
+
+        if (!cart) {
+            return res.status(404).json({
+                message: "Cart not found",
+                success: false
+            });
+        }
+
+        cart.items = cart.items.filter(item => {
+            const sameProduct =
+                item.product.toString() === productId;
+
+            const sameVariant =
+                variantId
+                    ? item.variant?.toString() === variantId
+                    : true;
+
+            return !(sameProduct && sameVariant);
+        });
+
+        await cart.save();
+
+        return res.status(200).json({
+            message: "Item removed from cart",
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:error.message
+        });
+    }
+};
 export const verifyOrderController = async (req, res) => {
     const {
         razorpay_order_id,
