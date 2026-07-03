@@ -6,10 +6,11 @@ import userModel from "../models/user.model.js";
 export const authenticateUser = async (req, res, next) => {
 
 
-  console.log("==============")
+  console.log("============")
     console.log("URL:", req.originalUrl)
-    console.log("COOKIE:", req.cookies)
-    console.log("==============")
+    console.log("ALL COOKIES:", req.cookies)
+    console.log("TOKEN:", req.cookies.token)
+    console.log("============")
 
 
     const token = req.cookies.token
@@ -21,8 +22,9 @@ export const authenticateUser = async (req, res, next) => {
     try {
 
         const decoded = jwt.verify(token, config.JWT_SECRET)
-
+console.log("DECODED TOKEN:", decoded)
         const user = await userModel.findById(decoded.id)
+        console.log("FOUND USER:", user)
 
         if (!user) {
             return res.status(401).json({ message: "Unauthorized" })
