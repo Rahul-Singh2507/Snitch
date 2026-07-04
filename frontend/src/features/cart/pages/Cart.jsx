@@ -58,39 +58,53 @@ const Cart = () => {
         `${currency} ${Number(amount).toLocaleString('en-IN')}`
 
 
-    async function handleCheckout() {
-        const order = await handleCreateCartOrder()
-        console.log(order)
+   async function handleCheckout() {
+    const order = await handleCreateCartOrder()
 
+    console.log("ORDER:", order)
 
-        const options = {
-            key: "rzp_test_ShNSkpxt3emQVJ",
-            amount: order.amount, // Amount in paise
-            currency: order.currency,
-            name: "Snitch",
-            description: "Test Transaction",
-            order_id: order.id, // Generate order_id on server
-            handler: async (response) => {
+    const options = {
+       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
 
-                const isValid = await handleVerifyCartOrder(response)
+        amount: order.amount,
+        currency: order.currency,
 
-                if (isValid) {
-                    navigate(`/order-success?order_id=${response?.razorpay_order_id}`)
-                }
-            },
-            prefill: {
-                name: user?.fullname,
-                email: user?.email,
-                contact: user?.contact,
-            },
-            theme: {
-                color: tokens.primary,
-            },
-        };
+        name: "Snitch",
+        description: "Test Transaction",
 
-        const razorpayInstance = new Razorpay(options);
-        razorpayInstance.open();
+        order_id: order.id,
+
+        handler: async (response) => {
+
+            console.log("PAYMENT RESPONSE:", response)
+
+            const isValid = await handleVerifyCartOrder({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+            })
+
+            if (isValid) {
+                navigate(
+                  `/order-success?order_id=${response.razorpay_order_id}`
+                )
+            }
+        },
+
+        prefill: {
+            name: user?.fullname,
+            email: user?.email,
+            contact: user?.contact,
+        },
+
+        theme: {
+            color: tokens.primary,
+        },
     }
+
+    const razorpayInstance = new Razorpay(options)
+    razorpayInstance.open()
+}
 
     /* ─── Empty state ─── */
     if (!cart?.items?.length) {

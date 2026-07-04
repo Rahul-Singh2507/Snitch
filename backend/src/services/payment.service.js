@@ -6,17 +6,33 @@ const razorpay = new Razorpay({
     key_secret: config.RAZORPAY_KEY_SECRET
 })
 
-
 export const createOrder = async ({ amount, currency = "INR" }) => {
 
-     console.log("KEY:", config.RAZORPAY_KEY_ID)
-    console.log("SECRET:", config.RAZORPAY_KEY_SECRET)
+    console.log("AMOUNT:", amount)
+    console.log("CURRENCY:", currency)
+
     const options = {
-        amount: amount * 100, // amount in the smallest currency unit
-        currency,
+        amount: Math.round(amount * 100),
+        currency
     }
 
-    const order = await razorpay.orders.create(options)
+    console.log("OPTIONS:", options)
 
-    return order
+    try {
+
+        const order = await razorpay.orders.create(options)
+
+        console.log("RAZORPAY ORDER:", order)
+
+        return order
+
+    } catch (error) {
+
+        console.log("=========== RAZORPAY FULL ERROR ===========")
+        console.log(error)
+        console.log("ERROR STATUS:", error.statusCode)
+        console.log("ERROR BODY:", error.error)
+
+        throw error
+    }
 }
