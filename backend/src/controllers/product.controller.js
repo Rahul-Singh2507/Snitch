@@ -1,5 +1,6 @@
 import productModel from "../models/product.model.js";
 import { uploadFile } from "../services/storage.service.js";
+import { getDummyProducts, getDummyProductById } from "../data/dummyProducts.js";
 
 
 export async function createProduct(req, res) {
@@ -49,19 +50,43 @@ export async function getSellerProducts(req, res) {
 }
 
 export async function getAllProducts(req, res) {
-    const products = await productModel.find()
+    try {
+        const products = await productModel.find()
 
-    return res.status(200).json({
-        message: "Products fetched successfully",
-        success: true,
-        products
-    })
+        if (products.length > 0) {
+            return res.status(200).json({
+                message: "Products fetched successfully",
+                success: true,
+                products
+            })
+        }
+
+        return res.status(200).json({
+            message: "Products fetched successfully",
+            success: true,
+            products: getDummyProducts()
+        })
+    } catch (error) {
+        return res.status(200).json({
+            message: "Products fetched successfully",
+            success: true,
+            products: getDummyProducts()
+        })
+    }
 }
 
 export async function getProductDetails(req, res) {
     const { id } = req.params;
 
     const product = await productModel.findById(id)
+
+    if (!product && getDummyProductById(id)) {
+        return res.status(200).json({
+            message: "Product details fetched successfully",
+            success: true,
+            product: getDummyProductById(id)
+        })
+    }
 
     if (!product) {
         return res.status(404).json({
